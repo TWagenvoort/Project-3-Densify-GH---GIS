@@ -1,0 +1,116 @@
+# GRASSHOPPER PYTHON COMPONENT CODE
+# Kopieëer ALLES hieronder en plak in Grasshopper Python component
+
+"""
+HERON 3D EXPORTER - Grasshopper Python Component
+Inputs:
+  1. geojson_path (string) - Pad naar GeoJSON bestand
+  2. feature_service_url (string) - ArcGIS Feature Service URL
+  3. run_export (boolean) - True = export, False = preview
+"""
+
+import sys
+import os
+import json
+import urllib.request
+import urllib.parse
+
+# ==== CONFIGURATIE ====
+SCRIPT_FOLDER = r'C:\Users\Thijs W\Desktop\Heron\FINAL_SOLUTION_COMPLETE'
+FEATURE_SERVICE_URL = r'https://services9.arcgis.com/nqW2A97fCpeCbw6Z/arcgis/rest/services/Heron_test_final_3D/FeatureServer/0'
+# ====================
+
+if SCRIPT_FOLDER not in sys.path:
+    sys.path.insert(0, SCRIPT_FOLDER)
+
+def export_3d_buildings(geojson_path, feature_service_url, run_export):
+    """Main export function"""
+    
+    result = ''
+    
+    # Validate inputs
+    if not geojson_path or not os.path.exists(geojson_path):
+        return '[ERROR] GeoJSON file not found: ' + str(geojson_path)
+    
+    if not feature_service_url:
+        return '[ERROR] Feature Service URL required'
+    
+    if not run_export:
+        return '[INFO] Export paused - set run_export = True to upload'
+    
+    try:
+        # Load GeoJSON
+        with open(geojson_path, 'r', encoding='utf-8') as f:
+            geojson_data = json.load(f)
+        
+        features = geojson_data.get('features', [])
+        result += '[OK] Loaded: ' + str(len(features)) + ' buildings\n'
+        
+        # Prepare for upload
+        feature_service_url = feature_service_url.rstrip('/')
+        if not feature_service_url.endswith('/0'):
+            feature_service_url = feature_service_url + '/0'
+        
+        add_url = feature_service_url + '/addFeatures'
+        
+        # Upload in batches
+        batch_size = 100
+        total_added = 0
+        
+        for batch_num in range(0, len(features), batch_size):
+            batch_end = min(batch_num + batch_size, len(features))
+            batch_features = features[batch_num:batch_end]
+            
+            arcgis_features = []
+            for idx, feat in enumerate(batch_features):
+                try:
+                    coords = feat['geometry']['coordinates'][0]
+                    rings = [coords]
+                    height = float(feat['properties'].get('height', 0.0))
+                    name = str(feat['properties'].get('name', ''))
+                    
+                    arcgis_feat = {
+                        'geometry': {'rings': rings},
+                        'attributes': {
+                            'OBJECTID': batch_num + idx + 1,
+                            'height': height,
+                            'name': name
+                        }
+                    }
+                    arcgis_features.append(arcgis_feat)
+                except:
+                    continue
+            
+            # Upload batch
+            data = {
+                'features': json.dumps(arcgis_features),
+                'f': 'json'
+            }
+            params = urllib.parse.urlencode(data).encode('utf-8')
+            
+            try:
+                req = urllib.request.Request(add_url, data=params)
+                response = urllib.request.urlopen(req, timeout=30)
+                res_data = json.loads(response.read())
+                
+                if 'addResults' in res_data:
+                    added = sum(1 for r in res_data['addResults'] if r.get('success'))
+                    total_added += added
+            except Exception as e:
+                return '[ERROR] Upload failed: ' + str(e)
+        
+        result += '[OK] Uploaded: ' + str(total_added) + ' buildings\n'
+        result += '[OK] Check ArcGIS Scene Viewer in 3D mode!'
+        
+        return result
+    
+    except Exception as e:
+        return '[ERROR] ' + str(e)
+
+# GRASSHOPPER INPUTS (connect these):
+# geojson_path: string path to GeoJSON
+# feature_service_url: string Feature Service URL
+# run_export: boolean to trigger upload
+
+# Call the function
+result = export_3d_buildings(geojson_path, feature_service_url, run_export)

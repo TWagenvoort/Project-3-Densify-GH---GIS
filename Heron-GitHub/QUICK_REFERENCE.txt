@@ -1,0 +1,159 @@
+# GRASSHOPPER QUICK REFERENCE
+## 60-SECOND SETUP CHECKLIST
+
+### ✅ PRE-SETUP (ArcGIS Online - DO THIS FIRST)
+- [ ] Create Feature Service: "Heron_test_final_3D"
+- [ ] Add field: `height` (Number)
+- [ ] Add field: `name` (String)
+- [ ] Enable Editing: Settings → "Allow editing"
+- [ ] Make Public: Share → "Everyone"
+- [ ] Copy Feature Service URL
+
+---
+
+### ✅ GRASSHOPPER SETUP
+
+**Step 1: Add Python Component**
+- Type "Python" in Grasshopper search
+- Drag onto canvas
+
+**Step 2: Paste Code**
+- Double-click Python component
+- Open: `GRASSHOPPER_PYTHON_COMPONENT.txt`
+- Copy ALL code
+- Paste into code editor
+- OK
+
+**Step 3: Add Inputs**
+- Right-click Python → "Refresh Inputs"
+- Add 3 Text/String panels
+- Add 1 Toggle/Boolean panel
+
+**Step 4: Connect Inputs**
+```
+Panel 1 (geojson_path)       → Input "geojson_path"
+Panel 2 (feature_service_url) → Input "feature_service_url"
+Toggle (run_export)           → Input "run_export"
+```
+
+---
+
+### ✅ INPUT VALUES
+
+**Panel 1 - geojson_path:**
+```
+C:\Users\Thijs W\Desktop\Heron\FINAL_SOLUTION_COMPLETE\Primo_Levihof_buildings.geojson
+```
+
+**Panel 2 - feature_service_url:**
+```
+https://services9.arcgis.com/nqW2A97fCpeCbw6Z/arcgis/rest/services/Heron_test_final_3D/FeatureServer/0
+```
+
+**Toggle - run_export:**
+- `False` = Just load (test)
+- `True` = Upload to ArcGIS
+
+---
+
+### ✅ TEST & VERIFY
+
+**Test 1: Preview Mode**
+1. Set `run_export = False`
+2. Recompute (F5)
+3. Check output panel
+4. Should show: `[OK] Loaded: 92 buildings`
+
+**Test 2: Export Mode**
+1. Set `run_export = True`
+2. Recompute
+3. Check output: `[OK] Uploaded: 92 buildings`
+4. Check ArcGIS Scene Viewer
+
+---
+
+### ✅ SCENE VIEWER 3D SETUP
+
+**In ArcGIS Online:**
+1. Open Feature Service item
+2. "Open in Scene Viewer"
+3. Layers panel (left) → Your layer
+4. Right-click → "Extrude"
+5. "Extrude by": `height`
+6. Scale: `1.0`
+7. 3D button (top-right): ON
+8. Rotate mouse to see buildings!
+
+---
+
+### 🎯 YOUR VALUES
+
+**Your Feature Service URL:**
+```
+https://services9.arcgis.com/nqW2A97fCpeCbw6Z/arcgis/rest/services/Heron_test_final_3D/FeatureServer/0
+```
+
+**Your GeoJSON Path:**
+```
+C:\Users\Thijs W\Desktop\Heron\FINAL_SOLUTION_COMPLETE\Primo_Levihof_buildings.geojson
+```
+
+---
+
+### ⚡ COMMON COMMANDS
+
+| Action | Command/Button |
+|--------|---|
+| Recompute all | F5 |
+| Refresh Python | Right-click → Refresh |
+| View output | Right-click → Preview |
+| Toggle input | Double-click Toggle |
+| Zoom to 3D | ArcGIS Scene Viewer → Zoom Rotterdam |
+
+---
+
+### 🔴 QUICK FIXES
+
+**"No output"**
+→ Check: geojson_path correct?
+→ Check: Feature Service URL correct?
+
+**"Token Required"**
+→ Go to Feature Service → Share → Public
+
+**"Height field not found"**
+→ Add field in ArcGIS: Item → Data → Fields → Add
+
+**"Can't see buildings in Scene Viewer"**
+→ Extrude by `height` (not other field)
+→ Enable 3D mode (button top-right)
+→ Zoom to Rotterdam (4.531, 51.873)
+
+---
+
+### 📁 FILES YOU NEED
+
+```
+FINAL_SOLUTION_COMPLETE/
+├── GRASSHOPPER_PYTHON_COMPONENT.txt  ← COPY THIS CODE
+├── Primo_Levihof_buildings.geojson   ← YOUR DATA
+├── HANDLEIDING_GRASSHOPPER.md        ← FULL GUIDE
+└── README.md                         ← OVERVIEW
+```
+
+---
+
+### ✨ DONE!
+
+You now have:
+- ✅ Automated Grasshopper → ArcGIS pipeline
+- ✅ Real-time 3D preview in Scene Viewer
+- ✅ Professional 3D building visualization
+- ✅ Scalable to any GeoJSON dataset
+
+**Next:** Design buildings → Export → Preview in 3D! 🏢🎨
+
+---
+
+**Need help?** Read `HANDLEIDING_GRASSHOPPER.md`
+**Testing?** Run `TEST_FEATURE_SERVICE.py`
